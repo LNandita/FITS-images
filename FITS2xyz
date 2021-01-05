@@ -1,0 +1,30 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import astropy as ap
+def fits2xyz(filename,a=0):
+    ''' Written by: Nandita Kumari , Stony Brook University
+    function to convert a FITS image from z,x,y format to x,y,z upon being read by astropy/numpy
+    #filename - name of the FITS file ,
+    #a - number of bands to be rearranged (by default its 1st band of the image)'''
+    img1 = ap.utils.data.get_pkg_data_filename(filename)
+    image = ap.io.fits.getdata(img1, ext=0)
+    mz,mx,my=np.shape(image)
+    df1=fit2numpy(filename,a)
+    dff=df1.to_numpy()
+    fd=dff.reshape(mx,my,a)
+    return fd
+def fit2numpy(file_name,a):
+    '''function within fits2xyz to convert a FITS image from z,x,y format to x,y,z upon being read by astropy/numpy
+    and converts all the negative values to 0.
+    #filename - name of the FITS file ,
+    #a - number of bands to be rearranged (by default its 1st band of the image)'''
+    df=pd.DataFrame()
+    npp=np.ndarray(shape=(mx,my,1))
+    for z in range(0,a):
+        extract_mz= np.reshape(image[z,:,:],(mx,my)).flatten()
+        data={'Band'+str(z+1):extract_mz}
+        df2=pd.DataFrame(data)
+        df=pd.concat([df,df2],axis=1)
+        df[df<0]=0
+    return df
